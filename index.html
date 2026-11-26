@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NexusCloud — Developer Console & Overview</title>
+  
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            obsidian: {
+              950: '#07080A',
+              900: '#0B0D11',
+              850: '#101319',
+              800: '#161A23',
+              700: '#222734',
+            },
+            accent: {
+              500: '#6366F1',
+              400: '#818CF8',
+              glow: 'rgba(99, 102, 241, 0.25)',
+            }
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-obsidian-950 dark:text-slate-100 font-sans antialiased selection:bg-indigo-500/30 selection:text-indigo-200 transition-colors duration-200 overflow-x-hidden">
+
+  <!-- Ambient Top Gradient Glow -->
+  <div class="pointer-events-none fixed inset-x-0 top-0 -z-10 h-96 bg-gradient-to-b from-indigo-500/[0.07] via-purple-500/[0.02] to-transparent dark:from-indigo-500/[0.11] dark:via-cyan-500/[0.03]"></div>
+
+  <!-- Mobile Sidebar Backdrop -->
+  <div id="sidebar-backdrop" class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm hidden lg:hidden transition-opacity" onclick="toggleSidebar()"></div>
+
+  <!-- Toast Notification Container (Replaces alert()) -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <div class="flex min-h-screen">
+    
+    <!-- LEFT NAVIGATION SIDEBAR -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 transform -translate-x-full lg:translate-x-0 lg:static lg:inset-0 transition-transform duration-200 ease-out flex flex-col border-r border-slate-200/80 dark:border-white/[0.07] bg-white/90 dark:bg-obsidian-900/85 backdrop-blur-xl">
+      
+      <!-- Brand / Workspace Switcher -->
+      <div class="h-16 flex items-center justify-between px-4 border-b border-slate-200/80 dark:border-white/[0.07]">
+        <button onclick="showToast('Workspace: nexus-prod-eu1 (Enterprise)', 'info')" class="flex items-center gap-2.5 w-full p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-colors text-left group">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-md shadow-indigo-500/20 shrink-0">
+            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span class="text-sm font-semibold tracking-tight truncate">NexusCloud</span>
+              <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded-md bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 border border-indigo-500/20">Pro</span>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 truncate font-mono">org_8842a9f</p>
+          </div>
+          <svg class="w-4 h-4 text-slate-400 group-hover:text-slate-200 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+          </svg>
+        </button>
+
+        <!-- Close Sidebar Button (Mobile) -->
+        <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 ml-1" aria-label="Close sidebar">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Primary Navigation -->
+      <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto" aria-label="Sidebar Navigation">
+        <div class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Platform</div>
+        
+        <a href="#" data-nav="Overview" onclick="selectNav(this, event)" class="nav-item active flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium bg-indigo-500/10 text-indigo-600 dark:text-white dark:bg-white/[0.07] border border-indigo-500/20 dark:border-white/[0.08] shadow-sm transition-all">
+          <svg class="w-4 h-4 text-indigo-500 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+          <span>Overview</span>
+        </a>
+
+        <a href="#" data-nav="API Keys" onclick="selectNav(this, event)" class="nav-item flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-white/[0.04] border border-transparent transition-all">
+          <div class="flex items-center gap-3">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+            </svg>
+            <span>API Keys</span>
+          </div>
+          <span class="text-[11px] font-mono px-1.5 py-0.5 rounded-md bg-slate-200/70 dark:bg-white/[0.06] text-slate-600 dark:text-slate-400">4</span>
+        </a>
+
+        <a href="#" data-nav="Deployments" onclick="selectNav(this, event)" class="nav-item flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-white/[0.04] border border-transparent transition-all">
+          <div class="flex items-center gap-3">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>
+            <span>Deployments</span>
+          </div>
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        </a>
+
+        <a href="#" data-nav="Webhooks" onclick="selectNav(this, event)" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-white/[0.04] border border-transparent transition-all">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+          </svg>
+          <span>Webhooks</span>
+        </a>
+
+        <a href="#" data-nav="Logs" onclick="selectNav(this, event)" class="nav-item flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-white/[0.04] border border-transparent transition-all">
+          <div class="flex items-center gap-3">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>Logs</span>
+          </div>
+          <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-500">Live</span>
+        </a>
+
+        <div class="pt-4 px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Organization</div>
+
+        <a href="#" data-nav="Billing" onclick="selectNav(this, event)" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-white/[0.04] border border-transparent transition-all">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+          </svg>
+          <span>Billing</span>
+        </a>
+
+        <a href="#" data-nav="Settings" onclick="selectNav(this, event)" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-white/[0.04] border border-transparent transition-all">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <span>Settings</span>
+        </a>
+      </nav>
+
+      <!-- Usage Quota & Developer Profile Footer -->
+      <div class="p-3 border-t border-slate-200/80 dark:border-white/[0.07] space-y-3">
+        <!-- Monthly Compute Quota Card -->
+        <div class="p-3 rounded-xl bg-slate-100/80 dark:bg-white/[0.03] border border-slate-200/70 dark:border-white/[0.06]">
+          <div class="flex items-center justify-between text-xs mb-1.5">
+            <span class="font-medium text-slate-600 dark:text-slate-300">Edge Invocations</span>
+            <span class="font-mono text-indigo-500 dark:text-indigo-400">74.2%</span>
+          </div>
+          <div class="w-full h-1.5 rounded-full bg-slate-200 dark:bg-white/[0.08] overflow-hidden">
+            <div class="h-full w-[74.2%] rounded-full bg-gradient-to-r from-indigo-500 to-cyan-400"></div>
+          </div>
+          <p class="mt-1.5 text-[11px] font-mono text-slate-500 dark:text-slate-400">7.42M / 10.0M reqs</p>
+        </div>
+
+        <!-- User Row -->
+        <div class="flex items-center gap-2.5 px-1.5 py-1">
+          <div class="relative">
+            <img src="https://placehold.co/64x64/1e293b/818cf8?text=AR" onerror="this.src='https://placehold.co/64x64/0f172a/ffffff?text=DEV'" alt="Alex Rivera" class="w-8 h-8 rounded-full border border-white/15 object-cover" />
+            <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-white dark:ring-obsidian-900"></span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-semibold truncate">Alex Rivera</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 font-mono truncate">alex@nexuscloud.dev</p>
+          </div>
+          <button onclick="showToast('CLI token refreshed', 'success')" title="CLI Session Active" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/[0.06] transition-colors">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT WORKSPACE -->
+    <div class="flex-1 flex flex-col min-w-0">
+      
+      <!-- TOP STICKY HEADER -->
+      <header class="sticky top-0 z-30 h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 border-b border-slate-200/80 dark:border-white/[0.07] bg-white/80 dark:bg-obsidian-950/75 backdrop-blur-xl">
+        
+        <!-- Left: Mobile Menu + Breadcrumbs -->
+        <div class="flex items-center gap-3 min-w-0">
+          <button onclick="toggleSidebar()" class="lg:hidden p-2.5 rounded-xl border border-slate-200 dark:border-white/[0.08] bg-white dark:bg-white/[0.03] text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.08]" aria-label="Open navigation">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+
+          <div class="flex items-center gap-2 text-sm truncate">
+            <span class="hidden sm:inline text-slate-400 dark:text-slate-500 font-mono">production</span>
+            <span class="hidden sm:inline text-slate-300 dark:text-slate-700">/</span>
+            <span id="header-breadcrumb" class="font-semibold tracking-tight text-slate-900 dark:text-white truncate">Overview</span>
+            <span class="hidden md:inline-flex items-center gap-1.5 ml-2 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              All Systems Operational
+            </span>
+          </div>
+        </div>
+
+        <!-- Center/Right: Command Search + Quick Actions + Theme Toggle -->
+        <div class="flex items-center gap-2.5 sm:gap-3">
+          
+          <!-- Search Input with ⌘K Shortcut -->
+          <div class="relative hidden md:block w-64 xl:w-80">
+            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input 
+              id="global-search"
+              type="text" 
+              placeholder="Search deployments, logs, endpoints..." 
+              oninput="filterDeployments(this.value)"
+              class="w-full pl-9 pr-12 py-1.5 text-xs rounded-xl bg-slate-100/90 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/[0.08] text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/50 transition-all"
+            />
+            <kbd class="absolute right-2.5 top-1/2 -translate-y-1/2 px-1.5 py-0.5 text-[10px] font-mono text-slate-400 bg-white dark:bg-obsidian-800 border border-slate-200 dark:border-white/[0.1] rounded">⌘K</kbd>
+          </div>
+
+          <!-- Theme Switcher Button -->
+          <button id="theme-toggle" onclick="toggleTheme()" class="p-2.5 rounded-xl border border-slate-200/80 dark:border-white/[0.08] bg-white dark:bg-white/[0.03] text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.08] transition-colors" title="Toggle Dark/Light Mode" aria-label="Toggle Theme">
+            <!-- Sun Icon (shown in dark mode) -->
+            <svg id="icon-sun" class="w-4 h-4 hidden dark:block text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <!-- Moon Icon (shown in light mode) -->
+            <svg id="icon-moon" class="w-4 h-4 block dark:hidden text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+          </button>
+
+          <!-- Docs Link -->
+          <button onclick="showToast('Opening API Reference v2.4...', 'info')" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium border border-slate-200/80 dark:border-white/[0.08] bg-white dark:bg-white/[0.03] text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.07] transition-colors">
+            <span>Docs</span>
+            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </button>
+
+          <!-- Primary Quick Action: New Deployment -->
+          <button onclick="triggerNewDeployment()" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 active:scale-[0.98] shadow-lg shadow-indigo-500/25 border border-indigo-400/20 transition-all">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            <span>Deploy</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- MAIN DASHBOARD BODY -->
+      <main class="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-[1600px] w-full mx-auto space-y-6">
+        
+        <!-- Welcome Banner & Environment Controls -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">System Telemetry & Overview</h1>
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">Real-time edge gateway performance, active builds, and webhook delivery stream.</p>
+          </div>
+
+          <!-- Environment Segmented Control -->
+          <div class="inline-flex p-1 rounded-xl bg-slate-200/70 dark:bg-obsidian-850 border border-slate-200 dark:border-white/[0.07] self-start sm:self-auto">
+            <button onclick="switchEnvironment('production', this)" class="env-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-white dark:bg-white/[0.09] text-slate-900 dark:text-white shadow-sm transition-all">Production</button>
+            <button onclick="switchEnvironment('staging', this)" class="env-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all">Staging</button>
+            <button onclick="switchEnvironment('preview', this)" class="env-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all">Preview</button>
+          </div>
+        </div>
+
+        <!-- KPI METRIC CARDS (4-Column Responsive Grid) -->
+        <section aria-label="Key Performance Metrics" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          
+          <!-- KPI 1: API Requests -->
+          <div class="group relative p-5 rounded-2xl bg-white dark:bg-obsidian-900/75 border border-slate-200/80 dark:border-white/[0.07] backdrop-blur-md hover:border-indigo-500/40 transition-all shadow-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-slate-500 dark:text-slate-400">API Requests (24h)</span>
+              <span class="p-2 rounded-lg bg-indigo-500/10 text-indigo-500 dark:text-indigo-400">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+              </span>
+            </div>
+            <div class="mt-3 flex items-baseline justify-between gap-2">
+              <h2 id="kpi-requests" class="text-2xl sm:text-3xl font-bold font-mono tracking-tight">2,849,120</h2>
+              <span class="inline-flex items-center gap-0.5 text-xs font-mono font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                +14.8%
+              </span>
+            </div>
+            <p class="mt-2 text-xs text-slate-500 dark:text-slate-500 font-mono">Avg 32.9 req/sec across 18 POPs</p>
+          </div>
+
+          <!-- KPI 2: Uptime -->
+          <div class="group relative p-5 rounded-2xl bg-white dark:bg-obsidian-900/75 border border-slate-200/80 dark:border-white/[0.07] backdrop-blur-md hover:border-emerald-500/40 transition-all shadow-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Global Uptime</span>
+              <span class="p-2 rounded-lg bg-emerald-500/10 text-emerald-500 dark:text-emerald-400">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </span>
+            </div>
+            <div class="mt-3 flex items-baseline justify-between gap-2">
+              <h2 id="kpi-uptime" class="text-2xl sm:text-3xl font-bold font-mono tracking-tight">99.994%</h2>
+              <span class="inline-flex items-center gap-1 text-xs font-mono font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                SLA Met
+              </span>
+            </div>
+            <p class="mt-2 text-xs text-slate-500 dark:text-slate-500 font-mono">0 incidents in the last 90 days</p>
+          </div>
+
+          <!-- KPI 3: Avg Latency -->
+          <div class="group relative p-5 rounded-2xl bg-white dark:bg-obsidian-900/75 border border-slate-200/80 dark:border-white/[0.07] backdrop-blur-md hover:border-cyan-500/40 transition-all shadow-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Edge P95 Latency</span>
+              <span class="p-2 rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </span>
+            </div>
+            <div class="mt-3 flex items-baseline justify-between gap-2">
+              <h2 id="kpi-latency" class="text-2xl sm:text-3xl font-bold font-mono tracking-tight">24.6<span class="text-base font-normal text-slate-400 ml-0.5">ms</span></h2>
+              <span class="inline-flex items-center gap-0.5 text-xs font-mono font-medium px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">
+                -3.2ms
+              </span>
+            </div>
+            <p class="mt-2 text-xs text-slate-500 dark:text-slate-500 font-mono">P50: 11.2ms • Cache Hit: 94.1%</p>
+          </div>
+
+          <!-- KPI 4: Active Projects -->
+          <div class="group relative p-5 rounded-2xl bg-white dark:bg-obsidian-900/75 border border-slate-200/80 dark:border-white/[0.07] backdrop-blur-md hover:border-purple-500/40 transition-all shadow-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Active Projects</span>
+              <span class="p-2 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+              </span>
+            </div>
+            <div class="mt-3 flex items-baseline justify-between gap-2">
+              <h2 id="kpi-projects" class="text-2xl sm:text-3xl font-bold font-mono tracking-tight">14<span class="text-base font-normal text-slate-400 ml-1">/ 20</span></h2>
+              <span class="inline-flex items-center gap-1 text-xs font-mono font-medium px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                3 Building
+              </span>
+            </div>
+            <p class="mt-2 text-xs text-slate-500 dark:text-slate-500 font-mono">12 Edge Workers • 2 Postgres DBs</p>
+          </div>
+        </section>
+
+        <!-- MIDDLE ANALYTICS & API KEY GRID -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <!-- INTERACTIVE REQUEST TRAFFIC CHART (8 Columns on Desktop) -->
+          <section class="lg:col-span-8 p-5 sm:p-6 rounded-2xl bg-white dark:bg-obsidian-900/75 border border-slate-200/80 dark:border-white/[0.07] backdrop-blur-md shadow-sm flex flex-col justify-between">
+            
+            <!-- Chart Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="text-base font-semibold tracking-tight">Edge Request Throughput</h3>
+                  <span class="px-2 py-0.5 text-[11px] font-mono rounded-md bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 border border-indigo-500/20">HTTP/3</span>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Hover over data points to inspect 2xx success vs 4xx/5xx error rates.</p>
+              </div>
+
+              <!-- Timeframe Tabs -->
+              <div class="inline-flex p-1 rounded-xl bg-slate-100 dark:bg-obsidian-850 border border-slate-200/80 dark:border-white/[0.07] self-start">
+                <button onclick="updateChartRange('1H', this)" class="chart-tab px-2.5 py-1 rounded-lg text-xs font-mono font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">1H</button>
+                <button onclick="updateChartRange('24H', this)" class="chart-tab px-2.5 py-1 rounded-lg text-xs font-mono font-medium bg-white dark:bg-white/[0.1] text-slate-900 dark:text-white shadow-sm transition-colors">24H</button>
+                <button onclick="updateChartRange('7D', this)" class="chart-tab px-2.5 py-1 rounded-lg text-xs font-mono font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">7D</button>
+                <button onclick="updateChartRange('30D', this)" class="chart-tab px-2.5 py-1 rounded-lg text-xs font-mono font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">30D</button>
+              </div>
+            </div>
+
+            <!-- Interactive SVG Chart Area -->
+            <div class="relative w-full h-64 sm:h-72 select-none" id="traffic-chart-container">
+              <!-- Dynamic Tooltip -->
+              <div id="chart-tooltip" class="pointer-events-none opacity-0 transition-opacity duration-150 absolute z-20 px-3 py-2 rounded-xl bg-slate-900/95 dark:bg-obsidian-800/95 text-white border border-white/15 shadow-xl backdrop-blur-md text-xs font-mono whitespace-nowrap">
+                <div id="tooltip-time" class="text-slate-400 text-[11px] mb-1">14:00 UTC</div>
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
+                  <span>2xx OK: <strong id="tooltip-ok" class="text-white">148.2k</strong></span>
+                </div>
+                <div class="flex items-center gap-2 mt-0.5">
+                  <span class="w-2 h-2 rounded-full bg-rose-400"></span>
+                  <span>4xx/5xx: <strong id="tooltip-err" class="text-rose-300">0.18%</strong></span>
+                </div>
+              </div>
+
+              <!-- Responsive SVG -->
+              <svg id="traffic-svg" viewBox="0 0 800 260" preserveAspectRatio="none" class="w-full h-full overflow-visible">
+                <defs>
+                  <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#6366F1" stop-opacity="0.38" />
+                    <stop offset="75%" stop-color="#6366F1" stop-opacity="0.05" />
+                    <stop offset="100%" stop-color="#6366F1" stop-opacity="0.0" />
+                  </linearGradient>
+                  <linearGradient id="strokeGradient" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#818CF8" />
+                    <stop offset="50%" stop-color="#6366F1" />
+                    <stop offset="100%" stop-color="#22D3EE" />
+                  </linearGradient>
+                </defs>
+
+                <!-- Horizontal Grid Lines -->
+                <g class="stroke-slate-200 dark:stroke-white/[0.06]" stroke-width="1" stroke-dasharray="4 4">
+                  <line x1="0" y1="30" x2="800" y2="30" />
+                  <line x1="0" y1="85" x2="800" y2="85" />
+                  <line x1="0" y1="140" x2="800" y2="140" />
+                  <line x1="0" y1="195" x2="800" y2="195" />
+                  <line x1="0" y1="245" x2="800" y2="245" stroke-dasharray="0" />
+                </g>
+
+                <!-- Area Fill Path -->
+                <path id="chart-area-path" d="" fill="url(#areaGradient)" class="transition-all duration-500" />
+                
+                <!-- Main Line Path -->
+                <path id="chart-line-path" d="" fill="none" stroke="url(#strokeGradient)" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" class="transition-all duration-500" />
+
+                <!-- Interactive Hover Vertical Guide -->
+                <line id="chart-guide-line" x1="0" y1="15" x2="0" y2="245" stroke="#818CF8" stroke-width="1" stroke-dasharray="3 3" opacity="0" />
+
+                <!-- Data Points Layer (Populated by JS) -->
+                <g id="chart-points-layer"></g>
+              </svg>
+            </div>
+
+            <!-- Chart Footer Legend & X-Axis Labels -->
+            <div class="mt-3 pt-3 border-t border-slate-200/70 dark:border-white/[0.06] flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400 font-mono">
+              <div id="chart-x-labels" class="flex items-center justify-between w-full sm:w-auto sm:gap-10 text-[11px]">
+                <span>00:00</span>
+                <span>04:00</span>
+                <span>08:00</span>
+                <span>12:00</span>
+                <span>16:00</span>
+                <span>20:00</span>
+                <span>Now</span>
+              </div>
+              <div class="flex items-center gap-4 text-[11px]">
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>2xx Success (99.82%)</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>Edge Cached</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- RIGHT COLUMN: QUICK-COPY API KEY WIDGET + SYSTEM STATUS (4 Columns on Desktop) -->
+          <div class="lg:col-span-4 flex flex-col gap-6">
+            
+            <!-- QUICK-COPY API KEY & CLI SNIPPET CARD -->
+            <section class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-obsidian-900/75 border border-slate-200/80 dark:border-white/[0.07] backdrop-blur-md shadow-sm">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <h3 class="text-base font-semibold tracking-tight">API Credentials</h3>
+                  <span class="px-2 py-0.5 text-[10px] font-mono uppercase rounded bg-amber-500/15 text-amber-600 dark:text-amber-300 border border-amber-500/20">Secret</span>
+                </div>
+                <button onclick="rotateApiKey()" class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span>Rotate</span>
+                </button>
+              </div>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Use this production secret key to authenticate server-side SDK requests.</p>
+
+              <!-- Secret Key Box -->
+              <div class="space-y-2.5">
+                <label class="block text-[11px] font-mono uppercase tracking-wider text-slate-400">Production Secret Key</label>
+                <div class="flex items-center gap-2 p-2.5 rounded-xl bg-slate-100 dark:bg-obsidian-950 border border-slate-200 dark:border-white/[0.09]">
+                  <code id="api-key-display" class="flex-1 text-xs font-mono text-slate-800 dark:text-indigo-300 truncate select-all">nx_live_98f4b2c1d7e04a6b8912f0c3</code>
+                  
+                  <!-- Reveal/Hide Button -->
+                  <button onclick="toggleKeyVisibility()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-200/70 dark:hover:bg-white/[0.08] transition-colors" title="Reveal or Mask Key" aria-label="Toggle API Key Visibility">
+                    <svg id="eye-icon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  </button>
+
+                  <!-- Copy Button -->
+                  <button onclick="copyText('api-key-raw', 'Production API key copied to clipboard')" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm transition-all active:scale-95">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    <span>Copy</span>
+                  </button>
+                </div>
+                <!-- Hidden Raw Value for Reliable Copy -->
+                <input type="hidden" id="api-key-raw" value="nx_live_98f4b2c1d7e04a6b8912f0c3" />
+              </div>
+
+              <!-- Quick CLI Curl Snippet -->
+              <div class="mt-4 pt-4 border-t border-slate-200/70 dark:border-white/[0.06]">
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-[11px] font-mono text-slate-400">Quick cURL Test</span>
+                  <button onclick="copyText('curl-snippet-raw', 'cURL command copied')" class="text-[11px] font-mono text-slate-400 hover:text-indigo-400 transition-colors">Copy snippet</button>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-900 dark:bg-obsidian-950 border border-slate-800 dark:border-white/[0.08] font-mono text-[11px] leading-relaxed text-slate-300 overflow-x-auto">
+                  <span class="text-emerald-400">$</span> curl https://api.nexuscloud.dev/v2/ping \<br/>
+                  &nbsp;&nbsp;-H <span class="text-amber-300">"Authorization: Bearer $NEXUS_KEY"</span>
+                </div>
+                <input type="hidden" id="curl-snippet-raw" value='curl https://api.nexuscloud.dev/v2/ping -H "Authorization: Bearer nx_live_98f4b2c1d7e04a6b8912f0c3"' />
+              </div>
+            </section>
+
+            <!-- INFRASTRUCTURE REGION HEALTH -->
+            <section class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-obsidian-900/75 border border-slate-200/80 dark:border-white/[0.07] backdrop-blur-md shadow-sm flex-1">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-semibold tracking-tight">Edge Cluster Health</h3>
+                <span class="text-[11px] font-mono text-emerald-500">100% Healthy</span>
+              </div>
+              <div class="space-y-3 text-xs">
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.025] border border-slate-200/60 dark:border-white/[0.05]">
+                  <div class="flex items-center gap-2.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>
+                    <div>
+                      <p class="font-medium">us-east-1 (N. Virginia)</p>
+                      <p class="text-[11px] font-mono text-slate-400">Primary Gateway</p>
+                    </div>
+                  </div>
+                  <span class="font-mono text-emerald-500">14ms</span>
+                </div>
+
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.025] border border-slate-200/60 dark:border-white/[0.05]">
+                  <div class="flex items-center gap-2.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>
+                    <div>
+                      <p class="font-medium">eu-central-1 (Frankfurt)</p>
+                      <p class="text-[11px] font-mono text-slate-400">Read Replica + Edge</p>
+                    </div>
+                  </div>
+                  <span class="font-mono text-emerald-500">21ms</span>
+                </div>
+
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.025] border border-slate-200/60 dark:border-white/[0.05]">
+                  <div class="flex items-center gap-2.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>
+                    <div>
+                      <p class="font-medium">ap-south-1 (Mumbai)</p>
+                      <p class="text-[11px] font-mono text-slate-400">Edge Compute Node</p>
+                    </div>
+                  </div>
+                  <span class="font-mono text-emerald-500">18ms</span>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <!-- BOTTOM SECTION: RECENT DEPLOYMENTS TABLE + LIVE WEBHOOK ACTIVITY FEED -->
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+          
+          <!-- RECENT DEPLOYMENTS & BUILDS TABLE (8 Columns) -->
+          <section class="xl:col-span-8 rounded-2xl bg-white dark:bg-obsidian-900/75 border border-slate-200/80 dark:border-white/[0.07] backdrop-blur-md shadow-sm overflow-hidden flex flex-col">
+            <div class="p-5 sm:p-6 border-b border-slate-200/80 dark:border-white/[0.07] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 class="text-base font-semibold tracking-tight">Recent Deployments</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Automated Git CI/CD pipelines across your connected repositories.</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="triggerNewDeployment()" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 dark:bg-white/[0.06] hover:bg-slate-200 dark:hover:bg-white/[0.1] text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-white/[0.08] transition-colors">
+                  + Trigger Build
+                </button>
+              </div>
+            </div>
+
+            <!-- Responsive Horizontal Scroll Wrapper -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="border-b border-slate-200/80 dark:border-white/[0.06] text-[11px] font-mono uppercase tracking-wider text-slate-400 dark:text-slate-500 bg-slate-50/70 dark:bg-white/[0.015]">
+                    <th class="py-3 px-5">Deployment / Commit</th>
+                    <th class="py-3 px-4">Branch</th>
+                    <th class="py-3 px-4">Status</th>
+                    <th class="py-3 px-4">Duration</th>
+                    <th class="py-3 px-5 text-right">Deployed</th>
+                  </tr>
+                </thead>
+                <tbody id="deployments-tbody" class="divide-y divide-slate-200/70 dark:divide-white/[0.06] text-xs">
+                  <!-- Populated dynamically via JS for instant filtering & new build insertion -->
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- LIVE WEBHOOK & EVENT ACTIVITY FEED (4 Columns) -->
+          <section class="xl:col-span-4 rounded-2xl bg-white dark:bg-obsidian-900/75 border border-slate-200/80 dark:border-white/[0.07] backdrop-blur-md shadow-sm flex flex-col">
+            <div class="p-5 sm:p-6 border-b border-slate-200/80 dark:border-white/[0.07] flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="relative flex h-2.5 w-2.5">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+                <h3 class="text-base font-semibold tracking-tight">Webhook Stream</h3>
+              </div>
+              <button onclick="simulateWebhookEvent()" class="text-xs font-mono text-indigo-600 dark:text-indigo-400 hover:underline">
+                Send Test Event
+              </button>
+            </div>
+
+            <!-- Event Feed List -->
+            <div id="webhook-feed" class="p-4 sm:p-5 space-y-3.5 max-h-[380px] overflow-y-auto">
+              <!-- Populated by JS -->
+            </div>
+          </section>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- VANILLA JAVASCRIPT FOR INTERACTIVITY -->
+  <script>
+    // ==========================================
+    // 1. STATE & MOCK DATA
+    // ==========================================
+    let isKeyMasked = true;
+    let currentRange = '24H';
+
+    const chartDatasets = {
+      '1H': {
+        labels: ['60m', '50m', '40m', '30m', '20m', '10m', 'Now'],
+        points: [
+          { time: '14:05 UTC', ok: '42.1k', err: '0.09%', val: 145 },
+          { time: '14:15 UTC', ok: '48.6k', err: '0.11%', val: 120 },
+          { time: '14:25 UTC', ok: '45.9k', err: '0.08%', val: 132 },
+          { time: '14:35 UTC', ok: '56.4k', err: '0.14%', val: 88 },
+          { time: '14:45 UTC', ok: '53.0k', err: '0.10%', val: 102 },
+          { time: '14:55 UTC', ok: '61.8k', err: '0.07%', val: 62 },
+          { time: '15:00 UTC', ok: '64.2k', err: '0.06%', val: 50 }
+        ]
+      },
+      '24H': {
+        labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', 'Now'],
+        points: [
+          { time: '00:00 UTC', ok: '98.4k', err: '0.12%', val: 175 },
+          { time: '04:00 UTC', ok: '84.1k', err: '0.09%', val: 192 },
+          { time: '08:00 UTC', ok: '132.7k', err: '0.19%', val: 124 },
+          { time: '12:00 UTC', ok: '168.5k', err: '0.21%', val: 72 },
+          { time: '16:00 UTC', ok: '154.9k', err: '0.15%', val: 94 },
+          { time: '20:00 UTC', ok: '189.2k', err: '0.18%', val: 46 },
+          { time: 'Now (UTC)', ok: '196.4k', err: '0.14%', val: 36 }
+        ]
+      },
+      '7D': {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        points: [
+          { time: 'Monday', ok: '1.84M', err: '0.16%', val: 140 },
+          { time: 'Tuesday', ok: '2.12M', err: '0.14%', val: 110 },
+          { time: 'Wednesday', ok: '2.45M', err: '0.22%', val: 78 },
+          { time: 'Thursday', ok: '2.38M', err: '0.15%', val: 86 },
+          { time: 'Friday', ok: '2.71M', err: '0.13%', val: 54 },
+          { time: 'Saturday', ok: '2.19M', err: '0.09%', val: 104 },
+          { time: 'Sunday', ok: '2.85M', err: '0.11%', val: 40 }
+        ]
+      },
+      '30D': {
+        labels: ['W1', 'W1.5', 'W2', 'W2.5', 'W3', 'W3.5', 'W4'],
+        points: [
+          { time: 'Day 1', ok: '11.2M', err: '0.24%', val: 165 },
+          { time: 'Day 5', ok: '12.8M', err: '0.19%', val: 142 },
+          { time: 'Day 10', ok: '14.5M', err: '0.17%', val: 115 },
+          { time: 'Day 15', ok: '16.1M', err: '0.15%', val: 92 },
+          { time: 'Day 20', ok: '15.8M', err: '0.14%', val: 96 },
+          { time: 'Day 25', ok: '18.4M', err: '0.12%', val: 58 },
+          { time: 'Day 30', ok: '19.9M', err: '0.11%', val: 38 }
+        ]
+      }
+    };
+
+    let deploymentsData = [
+      {
+        id: 'dpl_9f82a1',
+        project: 'nexus-edge-gateway',
+        commitMsg: 'feat(auth): add Ed25519 JWT verification at edge',
+        commitHash: '8a4f91c',
+        branch: 'main',
+        status: 'Ready',
+        duration: '38s',
+        time: '4m ago'
+      },
+      {
+        id: 'dpl_9f81b4',
+        project: 'billing-webhook-worker',
+        commitMsg: 'fix(stripe): idempotency key collision handling',
+        commitHash: '3d19e02',
+        branch: 'main',
+        status: 'Ready',
+        duration: '44s',
+        time: '27m ago'
+      },
+      {
+        id: 'dpl_9f80c9',
+        project: 'docs-portal-v2',
+        commitMsg: 'chore(ui): upgrade interactive OpenAPI playground',
+        commitHash: 'c77b12a',
+        branch: 'feat/openapi-3.1',
+        status: 'Building',
+        duration: '19s...',
+        time: 'Just now'
+      },
+      {
+        id: 'dpl_9f79e0',
+        project: 'analytics-ingest-pipeline',
+        commitMsg: 'perf(clickhouse): batch buffer flush interval tuning',
+        commitHash: '5e2108f',
+        branch: 'main',
+        status: 'Ready',
+        duration: '1m 12s',
+        time: '2h ago'
+      },
+      {
+        id: 'dpl_9f78d3',
+        project: 'sandbox-runner-iso',
+        commitMsg: 'test(v8): isolate memory cap regression check',
+        commitHash: '910fa44',
+        branch: 'fix/isolate-oom',
+        status: 'Failed',
+        duration: '29s',
+        time: '5h ago'
+      }
+    ];
+
+    let webhookEvents = [
+      { event: 'deployment.succeeded', target: 'hooks.slack.com/services/...', code: 200, latency: '112ms', time: '12s ago' },
+      { event: 'invoice.payment_paid', target: 'api.acme-corp.io/webhooks', code: 200, latency: '84ms', time: '2m ago' },
+      { event: 'api_key.rate_limit_warn', target: 'pagerduty.com/v2/enqueue', code: 202, latency: '149ms', time: '9m ago' },
+      { event: 'edge.cache_purged', target: 'internal-bus://eu-central-1', code: 200, latency: '19ms', time: '18m ago' },
+      { event: 'webhook.delivery_retry', target: 'staging.client-app.dev/hook', code: 502, latency: '2004ms', time: '31m ago' }
+    ];
+
+    // ==========================================
+    // 2. THEME & SIDEBAR NAVIGATION
+    // ==========================================
+    function toggleTheme() {
+      const htmlEl = document.documentElement;
+      const isDark = htmlEl.classList.toggle('dark');
+      showToast(Switched to ${isDark ? 'Obsidian Dark' : 'Clean Light'} theme, 'info');
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      const isClosed = sidebar.classList.contains('-translate-x-full');
+
+      if (isClosed) {
+        sidebar.classList.remove('-translate-x-full');
+        backdrop.classList.remove('hidden');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+        backdrop.classList.add('hidden');
+      }
+    }
+
+    function selectNav(el, event) {
+      event.preventDefault();
+      const navName = el.getAttribute('data-nav');
+
+      // Update active styles on sidebar items
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active', 'bg-indigo-500/10', 'text-indigo-600', 'dark:text-white', 'dark:bg-white/[0.07]', 'border-indigo-500/20', 'dark:border-white/[0.08]', 'shadow-sm');
+        item.classList.add('text-slate-600', 'dark:text-slate-400', 'border-transparent');
+      });
+
+      el.classList.remove('text-slate-600', 'dark:text-slate-400', 'border-transparent');
+      el.classList.add('active', 'bg-indigo-500/10', 'text-indigo-600', 'dark:text-white', 'dark:bg-white/[0.07]', 'border-indigo-500/20', 'dark:border-white/[0.08]', 'shadow-sm');
+
+      // Update header breadcrumb
+      document.getElementById('header-breadcrumb').textContent = navName;
+
+      // Close mobile drawer if open
+      if (window.innerWidth < 1024) {
+        toggleSidebar();
+      }
+
+      showToast(Viewing ${navName} module, 'info');
+    }
+
+    function switchEnvironment(env, btn) {
+      document.querySelectorAll('.env-btn').forEach(b => {
+        b.classList.remove('bg-white', 'dark:bg-white/[0.09]', 'text-slate-900', 'dark:text-white', 'shadow-sm');
+        b.classList.add('text-slate-500', 'dark:text-slate-400');
+      });
+      btn.classList.remove('text-slate-500', 'dark:text-slate-400');
+      btn.classList.add('bg-white', 'dark:bg-white/[0.09]', 'text-slate-900', 'dark:text-white', 'shadow-sm');
+
+      // Dynamically update KPI numbers to reflect selected environment
+      const metricsByEnv = {
+        production: { req: '2,849,120', up: '99.994%', lat: '24.6', proj: '14' },
+        staging: { req: '412,890', up: '99.950%', lat: '31.2', proj: '9' },
+        preview: { req: '89,412', up: '99.890%', lat: '38.9', proj: '22' }
+      };
+
+      const data = metricsByEnv[env];
+      document.getElementById('kpi-requests').textContent = data.req;
+      document.getElementById('kpi-uptime').textContent = data.up;
+      document.getElementById('kpi-latency').innerHTML = ${data.lat}<span class="text-base font-normal text-slate-400 ml-0.5">ms</span>;
+      document.getElementById('kpi-projects').innerHTML = ${data.proj}<span class="text-base font-normal text-slate-400 ml-1">/ 25</span>;
+
+      showToast(Switched telemetry context to ${env.toUpperCase()}, 'info');
+    }
+
+    // ==========================================
+    // 3. INTERACTIVE SVG CHART RENDERER
+    // ==========================================
+    function renderTrafficChart(range) {
+      const dataset = chartDatasets[range];
+      const points = dataset.points;
+      const width = 800;
+      const height = 245;
+      const stepX = width / (points.length - 1);
+
+      // Update X-axis labels
+      const labelsContainer = document.getElementById('chart-x-labels');
+      labelsContainer.innerHTML = dataset.labels.map(lbl => <span>${lbl}</span>).join('');
+
+      // Compute coordinates
+      const coords = points.map((pt, idx) => ({
+        x: idx * stepX,
+        y: pt.val,
+        meta: pt
+      }));
+
+      // Build smooth cubic bezier SVG path
+      let lineD = M ${coords[0].x} ${coords[0].y};
+      for (let i = 0; i < coords.length - 1; i++) {
+        const curr = coords[i];
+        const next = coords[i + 1];
+        const ctrlX1 = curr.x + stepX * 0.45;
+        const ctrlX2 = next.x - stepX * 0.45;
+        lineD += ` C ${ctrlX1} ${curr.y}, ${ctrlX2} ${next.y}, ${next.x} ${next.y}`;
+      }
+
+      const areaD = ${lineD} L ${coords[coords.length - 1].x} ${height} L ${coords[0].x} ${height} Z;
+
+      document.getElementById('chart-line-path').setAttribute('d', lineD);
+      document.getElementById('chart-area-path').setAttribute('d', areaD);
+
+      // Render interactive data points
+      const pointsLayer = document.getElementById('chart-points-layer');
+      pointsLayer.innerHTML = coords.map((c, i) => `
+        <g class="cursor-pointer group" onmouseenter="showChartTooltip(${i}, ${c.x}, ${c.y})" onmouseleave="hideChartTooltip()">
+          <circle cx="${c.x}" cy="${c.y}" r="18" fill="transparent" />
+          <circle cx="${c.x}" cy="${c.y}" r="4.5" class="fill-white dark:fill-obsidian-950 stroke-indigo-500 transition-transform duration-150 group-hover:scale-150" stroke-width="2.5" />
+        </g>
+      `).join('');
+    }
+
+    function updateChartRange(range, btn) {
+      currentRange = range;
+      document.querySelectorAll('.chart-tab').forEach(t => {
+        t.classList.remove('bg-white', 'dark:bg-white/[0.1]', 'text-slate-900', 'dark:text-white', 'shadow-sm');
+        t.classList.add('text-slate-500', 'dark:text-slate-400');
+      });
+      btn.classList.remove('text-slate-500', 'dark:text-slate-400');
+      btn.classList.add('bg-white', 'dark:bg-white/[0.1]', 'text-slate-900', 'dark:text-white', 'shadow-sm');
+
+      renderTrafficChart(range);
+    }
+
+    function showChartTooltip(index, svgX, svgY) {
+      const pt = chartDatasets[currentRange].points[index];
+      const tooltip = document.getElementById('chart-tooltip');
+      const guideLine = document.getElementById('chart-guide-line');
+      const container = document.getElementById('traffic-chart-container');
+
+      document.getElementById('tooltip-time').textContent = pt.time;
+      document.getElementById('tooltip-ok').textContent = pt.ok;
+      document.getElementById('tooltip-err').textContent = pt.err;
+
+      // Convert SVG coordinate (800x260) to container percentage
+      const rect = container.getBoundingClientRect();
+      const leftPx = (svgX / 800) * rect.width;
+      const topPx = (svgY / 260) * rect.height;
+
+      // Keep tooltip inside horizontal bounds
+      const clampedLeft = Math.min(Math.max(leftPx - 55, 8), rect.width - 145);
+      const clampedTop = Math.max(topPx - 78, 6);
+
+      tooltip.style.left = ${clampedLeft}px;
+      tooltip.style.top = ${clampedTop}px;
+      tooltip.classList.remove('opacity-0');
+
+      guideLine.setAttribute('x1', svgX);
+      guideLine.setAttribute('x2', svgX);
+      guideLine.setAttribute('opacity', '1');
+    }
+
+    function hideChartTooltip() {
+      document.getElementById('chart-tooltip').classList.add('opacity-0');
+      document.getElementById('chart-guide-line').setAttribute('opacity', '0');
+    }
+
+    // ==========================================
+    // 4. API KEY & CLIPBOARD ACTIONS
+    // ==========================================
+    function formatMaskedKey(raw) {
+      return raw.slice(0, 11) + '••••••••••••••••' + raw.slice(-4);
+    }
+
+    function toggleKeyVisibility() {
+      const raw = document.getElementById('api-key-raw').value;
+      const display = document.getElementById('api-key-display');
+      isKeyMasked = !isKeyMasked;
+      display.textContent = isKeyMasked ? formatMaskedKey(raw) : raw;
+    }
+
+    function rotateApiKey() {
+      const chars = 'abcdef0123456789';
+      let randomHex = '';
+      for (let i = 0; i < 24; i++) {
+        randomHex += chars[Math.floor(Math.random() * chars.length)];
+      }
+      const newKey = nx_live_${randomHex};
+      document.getElementById('api-key-raw').value = newKey;
+      document.getElementById('curl-snippet-raw').value = curl https://api.nexuscloud.dev/v2/ping -H "Authorization: Bearer ${newKey}";
+      document.getElementById('api-key-display').textContent = isKeyMasked ? formatMaskedKey(newKey) : newKey;
+      showToast('New production API key generated & active', 'success');
+    }
+
+    function copyText(inputId, successMessage) {
+      const sourceEl = document.getElementById(inputId);
+      if (!sourceEl) return;
+
+      // Create temporary textarea for reliable execCommand('copy') inside iframes
+      const tempTextArea = document.createElement('textarea');
+      tempTextArea.value = sourceEl.value;
+      tempTextArea.style.position = 'fixed';
+      tempTextArea.style.left = '-9999px';
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+
+      try {
+        document.execCommand('copy');
+        showToast(successMessage, 'success');
+      } catch (err) {
+        showToast('Unable to copy automatically. Please select text manually.', 'error');
+      } finally {
+        document.body.removeChild(tempTextArea);
+      }
+    }
+
+    // ==========================================
+    // 5. DEPLOYMENTS TABLE & WEBHOOK STREAM
+    // ==========================================
+    function getStatusBadge(status) {
+      if (status === 'Ready') {
+        return `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Ready
+        </span>`;
+      }
+      if (status === 'Building') {
+        return `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-600 dark:text-amber-300 border border-amber-500/20">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>Building
+        </span>`;
+      }
+      return `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+        <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>Failed
+      </span>`;
+    }
+
+    function renderDeployments(filterText = '') {
+      const tbody = document.getElementById('deployments-tbody');
+      const query = filterText.trim().toLowerCase();
+
+      const filtered = deploymentsData.filter(d =>
+        d.project.toLowerCase().includes(query) ||
+        d.commitMsg.toLowerCase().includes(query) ||
+        d.branch.toLowerCase().includes(query) ||
+        d.status.toLowerCase().includes(query)
+      );
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="py-10 text-center text-slate-400 font-mono text-xs">
+              No deployments matching "${filterText}"
+            </td>
+          </tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(d => `
+        <tr class="hover:bg-slate-50/90 dark:hover:bg-white/[0.025] transition-colors group">
+          <td class="py-3.5 px-5">
+            <div class="font-semibold text-slate-900 dark:text-slate-100 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors">${d.project}</div>
+            <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-xs sm:max-w-sm mt-0.5">${d.commitMsg}</div>
+          </td>
+          <td class="py-3.5 px-4">
+            <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/[0.05] border border-slate-200/70 dark:border-white/[0.08] font-mono text-[11px] text-slate-600 dark:text-slate-300">
+              <svg class="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+              </svg>
+              <span>${d.branch}</span>
+              <span class="text-slate-400">(${d.commitHash})</span>
+            </div>
+          </td>
+          <td class="py-3.5 px-4">${getStatusBadge(d.status)}</td>
+          <td class="py-3.5 px-4 font-mono text-slate-500 dark:text-slate-400">${d.duration}</td>
+          <td class="py-3.5 px-5 text-right font-mono text-slate-400">${d.time}</td>
+        </tr>
+      `).join('');
+    }
+
+    function filterDeployments(val) {
+      renderDeployments(val);
+    }
+
+    function triggerNewDeployment() {
+      const hex = Math.random().toString(16).substring(2, 9);
+      const newDeploy = {
+        id: dpl_${hex},
+        project: 'nexus-edge-gateway',
+        commitMsg: 'deploy: manual production rollout via console',
+        commitHash: hex,
+        branch: 'main',
+        status: 'Building',
+        duration: '4s...',
+        time: 'Just now'
+      };
+
+      deploymentsData.unshift(newDeploy);
+      renderDeployments(document.getElementById('global-search')?.value || '');
+      showToast(Build ${newDeploy.id} queued on edge-builder-eu1, 'info');
+
+      // Transition build to Ready after 2.8 seconds
+      setTimeout(() => {
+        newDeploy.status = 'Ready';
+        newDeploy.duration = '31s';
+        renderDeployments(document.getElementById('global-search')?.value || '');
+        showToast(Deployment ${newDeploy.id} is live across 18 POPs!, 'success');
+      }, 2800);
+    }
+
+    function renderWebhookFeed() {
+      const feed = document.getElementById('webhook-feed');
+      feed.innerHTML = webhookEvents.map(ev => {
+        const isOk = ev.code >= 200 && ev.code < 300;
+        const badgeStyle = isOk
+          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+          : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20';
+
+        return `
+          <div class="p-3 rounded-xl bg-slate-50/90 dark:bg-white/[0.025] border border-slate-200/70 dark:border-white/[0.06] hover:border-indigo-500/30 transition-colors">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">${ev.event}</span>
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-mono border ${badgeStyle}">${ev.code}</span>
+            </div>
+            <div class="mt-1.5 flex items-center justify-between text-[11px] font-mono text-slate-400">
+              <span class="truncate max-w-[180px]">${ev.target}</span>
+              <span>${ev.latency} • ${ev.time}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function simulateWebhookEvent() {
+      const sampleTypes = ['deployment.promoted', 'edge.kv_updated', 'rate_limit.threshold_ok', 'ssl.cert_renewed'];
+      const chosen = sampleTypes[Math.floor(Math.random() * sampleTypes.length)];
+      webhookEvents.unshift({
+        event: chosen,
+        target: 'api.acme-corp.io/webhooks',
+        code: 200,
+        latency: ${Math.floor(45 + Math.random() * 75)}ms,
+        time: 'Just now'
+      });
+      if (webhookEvents.length > 7) webhookEvents.pop();
+      renderWebhookFeed();
+      showToast(Dispatched test event: ${chosen}, 'success');
+    }
+
+    // ==========================================
+    // 6. CUSTOM TOAST NOTIFICATIONS & SHORTCUTS
+    // ==========================================
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+
+      const accentColor = type === 'success'
+        ? 'border-emerald-500/40 text-emerald-300'
+        : type === 'error'
+          ? 'border-rose-500/40 text-rose-300'
+          : 'border-indigo-500/40 text-indigo-300';
+
+      const dotColor = type === 'success' ? 'bg-emerald-400' : type === 'error' ? 'bg-rose-400' : 'bg-indigo-400';
+
+      toast.className = pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl bg-slate-900/95 dark:bg-obsidian-800/95 text-white border ${accentColor} shadow-2xl backdrop-blur-md text-xs font-medium transform translate-y-2 opacity-0 transition-all duration-200;
+      toast.innerHTML = `
+        <span class="w-2 h-2 rounded-full ${dotColor} shrink-0"></span>
